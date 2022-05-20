@@ -3,19 +3,19 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "datafac-resource"
-  location = "eastus"
+  name     = "${var.prefix}-resources"
+  location = var.location
 }
 
 resource "azurerm_virtual_network" "example" {
-  name                = "virtaulnet2509-VN"
+  name                = "${var.prefix}-VN"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "example" {
-  name                 = "virtualsubnet2509-SN"
+  name                 = "${var.prefix}-SN"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example.name
   address_prefixes     = ["10.0.0.0/24"]
@@ -27,14 +27,14 @@ resource "azurerm_subnet_network_security_group_association" "example" {
 }
 
 resource "azurerm_public_ip" "vm" {
-  name                = "virtualip2509-PIP"
+  name                = "${var.prefix}-PIP"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_network_security_group" "example" {
-  name                = "virtualsecgroup2509-NSG"
+  name                = "${var.prefix}-NSG"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 }
@@ -68,7 +68,7 @@ resource "azurerm_network_security_rule" "MSSQLRule" {
 }
 
 resource "azurerm_network_interface" "example" {
-  name                = "netinterface2509-NIC"
+  name                = "${var.prefix}-NIC"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
@@ -86,7 +86,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_virtual_machine" "example" {
-  name                  = "vm2509-VM"
+  name                  = "${var.prefix}-VM"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
   network_interface_ids = [azurerm_network_interface.example.id]
@@ -100,7 +100,7 @@ resource "azurerm_virtual_machine" "example" {
   }
 
   storage_os_disk {
-    name              = "vmosdisk-OSDisk"
+    name              = "${var.prefix}-OSDisk"
     caching           = "ReadOnly"
     create_option     = "FromImage"
     managed_disk_type = "Premium_LRS"
@@ -125,7 +125,7 @@ resource "azurerm_mssql_virtual_machine" "example" {
 }
 
 resource "azurerm_virtual_network" "test" {
-  name                = "viryaulnet2509-VN"
+  name                = "${var.prefix}-VN"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
@@ -139,14 +139,14 @@ resource "azurerm_subnet" "test" {
 }
 
 resource "azurerm_public_ip" "test" {
-  name                = "$publicip2509-PIP"
+  name                = "${var.prefix}-PIP"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_network_interface" "test" {
-  name                = "aznetwrokinterfcae2509-INT"
+  name                = "${var.prefix}-INT"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
@@ -159,7 +159,7 @@ resource "azurerm_network_interface" "test" {
 }
 
 resource "azurerm_virtual_machine" "test" {
-  name                  = "azvm2509-VM"
+  name                  = "${var.prefix}-VM"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
   network_interface_ids = [azurerm_network_interface.test.id]
@@ -180,7 +180,7 @@ resource "azurerm_virtual_machine" "test" {
   }
 
   os_profile {
-    computer_name  = "azureprof-VM"
+    computer_name  = "${var.prefix}-VM"
     admin_username = "testadmin"
     admin_password = "Password1234!"
   }
@@ -192,7 +192,7 @@ resource "azurerm_virtual_machine" "test" {
 }
 
 resource "azurerm_virtual_machine_extension" "test" {
-  name                 = "azvirext2509-EXT"
+  name                 = "${var.prefix}-EXT"
   virtual_machine_id   = azurerm_virtual_machine.test.id
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
@@ -204,24 +204,24 @@ resource "azurerm_virtual_machine_extension" "test" {
 }
 
 resource "azurerm_resource_group" "host" {
-  name     = "reso2509-resources"
-  location = "eastus"
+  name     = "${var.prefix}-resources"
+  location = var.location
 }
 
 resource "azurerm_data_factory" "host" {
-  name                = "azdf2509DFHOST"
+  name                = "${var.prefix}DFHOST"
   location            = azurerm_resource_group.host.location
   resource_group_name = azurerm_resource_group.host.name
 }
 
 resource "azurerm_data_factory_integration_runtime_self_hosted" "host" {
-  name            = "runtime2509IRHOST"
+  name            = "${var.prefix}IRHOST"
   data_factory_id = azurerm_data_factory.host.id
 }
 
 resource "azurerm_resource_group" "target" {
-  name     = "azres250998-resources"
-  location = "eastus"
+  name     = "${var.prefix}-resources"
+  location = var.location
 }
 
 resource "azurerm_role_assignment" "target" {
@@ -231,7 +231,7 @@ resource "azurerm_role_assignment" "target" {
 }
 
 resource "azurerm_data_factory" "target" {
-  name                = "tardf2509DFTGT"
+  name                = "${var.prefix}DFTGT"
   location            = azurerm_resource_group.target.location
   resource_group_name = azurerm_resource_group.target.name
 
@@ -241,7 +241,7 @@ resource "azurerm_data_factory" "target" {
 }
 
 resource "azurerm_data_factory_integration_runtime_self_hosted" "target" {
-  name            = "intruntime250998IRTGT"
+  name            = "${var.prefix}IRTGT"
   data_factory_id = azurerm_data_factory.target.id
 
   rbac_authorization {
