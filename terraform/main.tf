@@ -3,19 +3,19 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "${var.prefix}-resources"
-  location = var.location
+  name     = "prefix25-resources"
+  location = "eastus"
 }
 
 resource "azurerm_virtual_network" "example" {
-  name                = "${var.prefix}-VN"
+  name                = "prefix25-VN"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 }
 
 resource "azurerm_subnet" "example" {
-  name                 = "${var.prefix}-SN"
+  name                 = "prefix25-SN"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example.name
   address_prefixes     = ["10.0.0.0/24"]
@@ -27,14 +27,14 @@ resource "azurerm_subnet_network_security_group_association" "example" {
 }
 
 resource "azurerm_public_ip" "vm" {
-  name                = "${var.prefix}-PIP"
+  name                = "prefix25-PIP"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_network_security_group" "example" {
-  name                = "${var.prefix}-NSG"
+  name                = "prefix25-NSG"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 }
@@ -68,7 +68,7 @@ resource "azurerm_network_security_rule" "MSSQLRule" {
 }
 
 resource "azurerm_network_interface" "example" {
-  name                = "${var.prefix}-NIC"
+  name                = "prefix25-NIC"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
@@ -86,7 +86,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_virtual_machine" "example" {
-  name                  = "${var.prefix}-VM"
+  name                  = "prefix25-VM"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
   network_interface_ids = [azurerm_network_interface.example.id]
@@ -100,7 +100,7 @@ resource "azurerm_virtual_machine" "example" {
   }
 
   storage_os_disk {
-    name              = "${var.prefix}-OSDisk"
+    name              = "prefix25-OSDisk"
     caching           = "ReadOnly"
     create_option     = "FromImage"
     managed_disk_type = "Premium_LRS"
@@ -125,7 +125,7 @@ resource "azurerm_mssql_virtual_machine" "example" {
 }
 
 resource "azurerm_virtual_network" "test" {
-  name                = "${var.prefix}-VN"
+  name                = "prefix25-VN"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
@@ -139,14 +139,14 @@ resource "azurerm_subnet" "test" {
 }
 
 resource "azurerm_public_ip" "test" {
-  name                = "${var.prefix}-PIP"
+  name                = "prefix25-PIP"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_network_interface" "test" {
-  name                = "${var.prefix}-INT"
+  name                = "prefix25-INT"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
@@ -159,7 +159,7 @@ resource "azurerm_network_interface" "test" {
 }
 
 resource "azurerm_virtual_machine" "test" {
-  name                  = "${var.prefix}-VM"
+  name                  = "prefix25-VM"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
   network_interface_ids = [azurerm_network_interface.test.id]
@@ -180,7 +180,7 @@ resource "azurerm_virtual_machine" "test" {
   }
 
   os_profile {
-    computer_name  = "${var.prefix}-VM"
+    computer_name  = "prefix25-VM"
     admin_username = "testadmin"
     admin_password = "Password1234!"
   }
@@ -192,7 +192,7 @@ resource "azurerm_virtual_machine" "test" {
 }
 
 resource "azurerm_virtual_machine_extension" "test" {
-  name                 = "${var.prefix}-EXT"
+  name                 = "prefix25-EXT"
   virtual_machine_id   = azurerm_virtual_machine.test.id
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
@@ -204,24 +204,24 @@ resource "azurerm_virtual_machine_extension" "test" {
 }
 
 resource "azurerm_resource_group" "host" {
-  name     = "${var.prefix}-resources"
-  location = var.location
+  name     = "prefix25-resources"
+  location = "eastus"
 }
 
 resource "azurerm_data_factory" "host" {
-  name                = "${var.prefix}DFHOST"
+  name                = "prefix25DFHOST"
   location            = azurerm_resource_group.host.location
   resource_group_name = azurerm_resource_group.host.name
 }
 
 resource "azurerm_data_factory_integration_runtime_self_hosted" "host" {
-  name            = "${var.prefix}IRHOST"
+  name            = "prefix25IRHOST"
   data_factory_id = azurerm_data_factory.host.id
 }
 
 resource "azurerm_resource_group" "target" {
-  name     = "${var.prefix}-resources"
-  location = var.location
+  name     = "prefix25-resources"
+  location = "eastus"
 }
 
 resource "azurerm_role_assignment" "target" {
@@ -231,7 +231,7 @@ resource "azurerm_role_assignment" "target" {
 }
 
 resource "azurerm_data_factory" "target" {
-  name                = "${var.prefix}DFTGT"
+  name                = "prefix25DFTGT"
   location            = azurerm_resource_group.target.location
   resource_group_name = azurerm_resource_group.target.name
 
@@ -241,7 +241,7 @@ resource "azurerm_data_factory" "target" {
 }
 
 resource "azurerm_data_factory_integration_runtime_self_hosted" "target" {
-  name            = "${var.prefix}IRTGT"
+  name            = "prefix25IRTGT"
   data_factory_id = azurerm_data_factory.target.id
 
   rbac_authorization {
