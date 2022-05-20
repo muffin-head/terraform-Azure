@@ -4,7 +4,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "example" {
   name     = "tf-resources"
-  location = var.location
+  location = "eastus"
 }
 
 resource "azurerm_sql_server" "example" {
