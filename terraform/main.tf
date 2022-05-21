@@ -8,7 +8,7 @@ resource "azurerm_resource_group" "example" {
 }
 
 resource "azurerm_storage_account" "example" {
-  name                = "${var.prefix}storageacct"
+  name                = "terraform25storageacct"
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
 
