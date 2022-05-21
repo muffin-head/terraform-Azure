@@ -22,7 +22,7 @@ variable "email_notifier" {
 data "databricks_current_user" "me" {}
 
 resource "databricks_notebook" "this" {
-  path     = "${data.databricks_current_user.me.home}/Terraform/${var.resource_prefix}-notebook.ipynb"
+  path     = "1.2 Databricks Platform.ipynb"
   language = "PYTHON"
   content_base64 = base64encode(<<-EOT
     # created from ${abspath(path.module)}
