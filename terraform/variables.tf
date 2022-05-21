@@ -1,6 +1,6 @@
 variable "prefix" {
   description = "This prefix will be included in the name of most resources."
-  default = "samg"
+  default = "muffin25"
 }
 
 variable "location" {
@@ -20,7 +20,7 @@ variable "node_type_id" {
 
 variable "notebook_path" {
   description = "Path to a notebook"
-  default     = "/python_notebook"
+  default     = "1.2 Databricks Platform.ipynb"
 }
 
 variable "min_workers" {
