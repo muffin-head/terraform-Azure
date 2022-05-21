@@ -5,7 +5,7 @@ variable "prefix" {
 
 variable "location" {
   description = "The region"
-  default     = "centralus"
+  default     = "eastus"
 }
 
 variable "spark_version" {
@@ -30,5 +30,5 @@ variable "min_workers" {
 
 variable "max_workers" {
   description = "Maximum workers in a cluster"
-  default     = 4
+  default     = 2
 }
