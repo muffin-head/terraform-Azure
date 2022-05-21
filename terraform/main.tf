@@ -1,62 +1,99 @@
+terraform {
+  required_providers {
+    databricks = {
+      source = "databrickslabs/databricks"
+      version = "0.2.5"
+    }
+    azurerm = {
+      version = "2.29.0"
+    }
+  }
+}
+
+
+
+provider "azurerm" {
+    features {}
+}
+
 provider "databricks" {
-  host = var.databricks_workspace_url
-}
-variable "databricks_workspace_url" {
-  description = "The URL to the Azure Databricks workspace (must start with https://)"
-  type = string
-  default = "<Azure Databricks workspace URL>"
+  azure_workspace_resource_id = azurerm_databricks_workspace.myworkspace.id
 }
 
-variable "resource_prefix" {
-  description = "The prefix to use when naming the notebook and job"
-  type = string
-  default = "terraform-demo"
+
+resource "azurerm_resource_group" "myresourcegroup" {
+  name     = "${var.prefix}-myresourcegroup"
+  location = var.location
 }
 
-variable "email_notifier" {
-  description = "The email address to send job status to"
-  type = list(string)
-  default = ["<Your email address>"]
+resource "azurerm_databricks_workspace" "myworkspace" {
+  location                      = azurerm_resource_group.myresourcegroup.location
+  name                          = "${var.prefix}-workspace"
+  resource_group_name           = azurerm_resource_group.myresourcegroup.name
+  sku                           = "trial"
 }
 
-data "databricks_current_user" "me" {}
+resource "databricks_scim_user" "admin" {
+  user_name    = "admin@example.com"
+  display_name = "Admin user"
+  set_admin    = true
+  default_roles = []
+}
 
-resource "databricks_notebook" "this" {
-  path     = "1.2 Databricks Platform.ipynb"
+
+resource "databricks_cluster" "shared_autoscaling" {
+  cluster_name            = "${var.prefix}-Autoscaling-Cluster"
+  spark_version           = var.spark_version
+  node_type_id            = var.node_type_id
+  autotermination_minutes = 90
+  autoscale {
+    min_workers = var.min_workers
+    max_workers = var.max_workers
+  }
+  library {
+    pypi {
+        package = "scikit-learn==0.23.2"
+        // repo can also be specified here
+        }
+
+    }
+  library {
+    pypi {
+        package = "fbprophet==0.6"
+        }
+  }
+  custom_tags = {
+    Department = "Engineering"
+  }
+}
+
+resource "databricks_notebook" "notebook" {
+  content = base64encode("print('Welcome to your Python notebook')")
+  path = var.notebook_path
+  overwrite = false
+  mkdirs = true
   language = "PYTHON"
-  content_base64 = base64encode(<<-EOT
-    # created from ${abspath(path.module)}
-    display(spark.range(10))
-    EOT
-  )
+  format = "SOURCE"
 }
 
-data "databricks_node_type" "smallest" {
-  local_disk = true
-}
+resource "databricks_job" "myjob" {
+    name = "Featurization"
+    timeout_seconds = 3600
+    max_retries = 1
+    max_concurrent_runs = 1
+    existing_cluster_id = databricks_cluster.shared_autoscaling.id
 
-data "databricks_spark_version" "latest" {}
+    notebook_task {
+        notebook_path = var.notebook_path
+    }
 
-resource "databricks_job" "this" {
-  name = "${var.resource_prefix}-job-${data.databricks_current_user.me.alphanumeric}"
-  new_cluster {
-    num_workers   = 1
-    spark_version = data.databricks_spark_version.latest.id
-    node_type_id  = data.databricks_node_type.smallest.id
-  }
-  notebook_task {
-    notebook_path = databricks_notebook.this.path
-  }
-  email_notifications {
-    on_success = var.email_notifier
-    on_failure = var.email_notifier
-  }
-}
+    library {
+        pypi {
+            package = "fbprophet==0.6"
+        }
+    }
 
-output "notebook_url" {
-  value = databricks_notebook.this.url
-}
-
-output "job_url" {
-  value = databricks_job.this.url
+    email_notifications {
+        no_alert_for_skipped_runs = true
+    }
 }
