@@ -1,38 +1,62 @@
-provider "azurerm" {
-  features {}
+provider "databricks" {
+  host = var.databricks_workspace_url
+}
+variable "databricks_workspace_url" {
+  description = "The URL to the Azure Databricks workspace (must start with https://)"
+  type = string
+  default = "<Azure Databricks workspace URL>"
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "tf-resources"
-  location = "eastus"
+variable "resource_prefix" {
+  description = "The prefix to use when naming the notebook and job"
+  type = string
+  default = "terraform-demo"
 }
 
-resource "azurerm_sql_server" "example" {
-  name                         = "tfdb2509-sqlsvr"
-  resource_group_name          = azurerm_resource_group.example.name
-  location                     = azurerm_resource_group.example.location
-  version                      = "12.0"
-  administrator_login          = "4dm1n157r470r"
-  administrator_login_password = "4-v3ry-53cr37-p455w0rd"
+variable "email_notifier" {
+  description = "The email address to send job status to"
+  type = list(string)
+  default = ["<Your email address>"]
 }
 
-resource "azurerm_sql_database" "example" {
-  name                             = "tfdb2509-db"
-  resource_group_name              = azurerm_resource_group.example.name
-  location                         = azurerm_resource_group.example.location
-  server_name                      = azurerm_sql_server.example.name
-  edition                          = "Basic"
-  collation                        = "SQL_Latin1_General_CP1_CI_AS"
-  create_mode                      = "Default"
-  requested_service_objective_name = "Basic"
+data "databricks_current_user" "me" {}
+
+resource "databricks_notebook" "this" {
+  path     = "${data.databricks_current_user.me.home}/Terraform/${var.resource_prefix}-notebook.ipynb"
+  language = "PYTHON"
+  content_base64 = base64encode(<<-EOT
+    # created from ${abspath(path.module)}
+    display(spark.range(10))
+    EOT
+  )
 }
 
-# Enables the "Allow Access to Azure services" box as described in the API docs
-# https://docs.microsoft.com/en-us/rest/api/sql/firewallrules/createorupdate
-resource "azurerm_sql_firewall_rule" "example" {
-  name                = "allow-azure-services"
-  resource_group_name = azurerm_resource_group.example.name
-  server_name         = azurerm_sql_server.example.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+data "databricks_node_type" "smallest" {
+  local_disk = true
+}
+
+data "databricks_spark_version" "latest" {}
+
+resource "databricks_job" "this" {
+  name = "${var.resource_prefix}-job-${data.databricks_current_user.me.alphanumeric}"
+  new_cluster {
+    num_workers   = 1
+    spark_version = data.databricks_spark_version.latest.id
+    node_type_id  = data.databricks_node_type.smallest.id
+  }
+  notebook_task {
+    notebook_path = databricks_notebook.this.path
+  }
+  email_notifications {
+    on_success = var.email_notifier
+    on_failure = var.email_notifier
+  }
+}
+
+output "notebook_url" {
+  value = databricks_notebook.this.url
+}
+
+output "job_url" {
+  value = databricks_job.this.url
 }
