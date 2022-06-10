@@ -28,7 +28,7 @@ resource "azurerm_resource_group" "myresourcegroup" {
 
 resource "azurerm_databricks_workspace" "myworkspace" {
   location                      = azurerm_resource_group.myresourcegroup.location
-  name                          = "${var.prefix}-workspace"
+  name                          = "muffin1006v01workspace"
   resource_group_name           = azurerm_resource_group.myresourcegroup.name
   sku                           = "trial"
 }
