@@ -75,7 +75,7 @@ resource "databricks_cluster" "shared_autoscaling" {
 }
 
 resource "databricks_notebook" "notebook" {
-  content = "/1.2 Databricks Platform.ipynb"
+  content = var.notebook_path
   path = var.notebook_path
   overwrite = false
   mkdirs = true
