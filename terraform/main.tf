@@ -93,7 +93,9 @@ resource "databricks_job" "myjob" {
     existing_cluster_id = databricks_cluster.shared_autoscaling.id
 
     notebook_task {
-        notebook_path = databricks_notebook.myjob."/1.2 Databricks Platform.ipynb"
+        notebook_pathh=var.notebook_path
+      
+        notebook_path = databricks_notebook.myjob.notebook_pathh
     }
 
     library {
