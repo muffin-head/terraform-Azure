@@ -117,14 +117,30 @@ resource "azurerm_key_vault" "example" {
     ]
   }
 }
+
+
+provider "databricks" {
+  alias = "created_workspace"
+
+  host = azurerm_databricks_workspace.myworkspace.workspace_url
+}
+
+// create PAT token to provision entities within workspace
 resource "databricks_token" "pat" {
-  provider = azurerm_databricks_workspace.myworkspace
+  provider = databricks.created_workspace
   comment  = "Terraform Provisioning"
+  // 100 day token
   lifetime_seconds = 8640000
+}
+
+// output token for other modules
+output "databricks_token" {
+  value     = databricks_token.pat.token_value
+  sensitive = true
 }
   
 resource "azurerm_key_vault_secret" "example" {
   name         = "secret-sauce"
-  value        = databricks_token.pat.token_value
+  value        = databricks_token.value
   key_vault_id = azurerm_key_vault.example.id
 }
