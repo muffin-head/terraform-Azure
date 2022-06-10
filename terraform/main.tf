@@ -141,6 +141,6 @@ output "databricks_token" {
   
 resource "azurerm_key_vault_secret" "example" {
   name         = "secret-sauce"
-  value        = databricks_token.value
+  value        = databricks_token.pat.token_value
   key_vault_id = azurerm_key_vault.example.id
 }
