@@ -59,6 +59,13 @@ resource "databricks_cluster" "shared_autoscaling" {
     }
   library {
     pypi {
+        package = "pystan==2.19.1.1"
+        // repo can also be specified here
+        }
+
+    }
+  library {
+    pypi {
         package = "fbprophet==0.6"
         }
   }
