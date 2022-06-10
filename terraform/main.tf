@@ -75,7 +75,17 @@ resource "databricks_cluster" "shared_autoscaling" {
 }
 
 resource "databricks_notebook" "notebook" {
-  content = var.notebook_path
+  content = base64encode("\
+myFile = open('today','r')\
+ips = {}\
+for line in myFile:\
+    parts = line.split(' ')\
+    if parts[1] == 'Failure':\
+        if parts[0] in ips:\
+            ips[pars[0]] += 1\
+        else:\
+            ips[parts[0]] = 0\
+for ip in [k for k, v in ips.iteritems() if v >=5]:")
   path = var.notebook_path
   overwrite = false
   mkdirs = true
