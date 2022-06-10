@@ -81,6 +81,5 @@ resource "databricks_notebook" "notebook" {
   mkdirs = true
   language = "PYTHON"
   format = "SOURCE"
-
 }
 
