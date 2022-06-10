@@ -15,7 +15,7 @@ variable "spark_version" {
 
 variable "node_type_id" {
   description = "Type of worker nodes for databricks clusters"
-  default     = "F4"
+  default     = "Standard_DS3_v2"
 }
 
 variable "notebook_path" {
