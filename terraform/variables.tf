@@ -30,5 +30,5 @@ variable "min_workers" {
 
 variable "max_workers" {
   description = "Maximum workers in a cluster"
-  default     = 2
+  default     = 1
 }
