@@ -22,7 +22,7 @@ provider "databricks" {
 
 
 resource "azurerm_resource_group" "myresourcegroup" {
-  name     = "${var.prefix}-myresourcegroup"
+  name     = "resource1006v01myresourcegroup"
   location = var.location
 }
 
