@@ -83,3 +83,64 @@ resource "databricks_notebook" "notebook" {
   format = "SOURCE"
   
 }
+
+
+
+  resource "azurerm_resource_group" "example" {
+  name     = "example-resources12369"
+  location = "West Europe"
+}
+
+resource "azurerm_key_vault" "example" {
+  name                       = "keyvaultv011008"
+  location                   = azurerm_resource_group.myresourcegroup.location
+  resource_group_name        = "resource1006v01myresourcegroup"
+  tenant_id                  = "bbb16e7e-8a43-4199-b76c-9741348a7707"
+  sku_name                   = "premium"
+  soft_delete_retention_days = 7
+
+  access_policy {
+    tenant_id = "bbb16e7e-8a43-4199-b76c-9741348a7707"
+    object_id = "01054437-d016-4bf3-b3bf-6c87299cdba1"
+
+    key_permissions = [
+      "Create",
+      "Get",
+    ]
+
+    secret_permissions = [
+      "Set",
+      "Get",
+      "Delete",
+      "Purge",
+      "Recover"
+    ]
+  }
+}
+
+
+provider "databricks" {
+  alias = "created_workspace"
+
+  host = azurerm_databricks_workspace.myworkspace.workspace_url
+}
+
+// create PAT token to provision entities within workspace
+resource "databricks_token" "pat" {
+  provider = databricks.created_workspace
+  comment  = "Terraform Provisioning"
+  // 100 day token
+  lifetime_seconds = 8640000
+}
+
+// output token for other modules
+output "databricks_token" {
+  value     = databricks_token.pat.token_value
+  sensitive = true
+}
+  
+resource "azurerm_key_vault_secret" "example" {
+  name         = "secret-sauce"
+  value        = databricks_token.pat.token_value
+  key_vault_id = azurerm_key_vault.example.id
+}
