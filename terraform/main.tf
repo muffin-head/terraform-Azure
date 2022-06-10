@@ -84,6 +84,7 @@ resource "databricks_notebook" "notebook" {
   
 }
 
+
 resource "databricks_job" "myjob" {
     name = "Featurization"
     timeout_seconds = 3600
@@ -92,7 +93,7 @@ resource "databricks_job" "myjob" {
     existing_cluster_id = databricks_cluster.shared_autoscaling.id
 
     notebook_task {
-        notebook_path = var.notebook_path
+        notebook_path = databricks_notebook.myjob."/1.2 Databricks Platform.ipynb"
     }
 
     library {
