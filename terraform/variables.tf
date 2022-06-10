@@ -20,7 +20,7 @@ variable "node_type_id" {
 
 variable "notebook_path" {
   description = "Path to a notebook"
-  default     = "./1.2 Databricks Platform.ipynb"
+  default     = "/1.2 Databricks Platform.ipynb"
 }
 
 variable "min_workers" {
