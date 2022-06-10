@@ -81,6 +81,8 @@ resource "databricks_notebook" "notebook" {
   mkdirs = true
   language = "PYTHON"
   format = "SOURCE"
+  
+}
 
 resource "databricks_job" "myjob" {
     name = "Featurization"
