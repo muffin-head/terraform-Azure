@@ -1,38 +1,85 @@
+terraform {
+  required_providers {
+    databricks = {
+      source = "databrickslabs/databricks"
+      version = "0.2.5"
+    }
+    azurerm = {
+      version = "2.29.0"
+    }
+  }
+}
+
+
+
 provider "azurerm" {
-  features {}
+    features {}
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "tf-resources"
-  location = "eastus"
+provider "databricks" {
+  azure_workspace_resource_id = azurerm_databricks_workspace.myworkspace.id
 }
 
-resource "azurerm_sql_server" "example" {
-  name                         = "tfdb2509-sqlsvr"
-  resource_group_name          = azurerm_resource_group.example.name
-  location                     = azurerm_resource_group.example.location
-  version                      = "12.0"
-  administrator_login          = "4dm1n157r470r"
-  administrator_login_password = "4-v3ry-53cr37-p455w0rd"
+
+resource "azurerm_resource_group" "myresourcegroup" {
+  name     = "resource1006v01myresourcegroup"
+  location = var.location
 }
 
-resource "azurerm_sql_database" "example" {
-  name                             = "tfdb2509-db"
-  resource_group_name              = azurerm_resource_group.example.name
-  location                         = azurerm_resource_group.example.location
-  server_name                      = azurerm_sql_server.example.name
-  edition                          = "Basic"
-  collation                        = "SQL_Latin1_General_CP1_CI_AS"
-  create_mode                      = "Default"
-  requested_service_objective_name = "Basic"
+resource "azurerm_databricks_workspace" "myworkspace" {
+  location                      = azurerm_resource_group.myresourcegroup.location
+  name                          = "muffin1006v01workspace"
+  resource_group_name           = azurerm_resource_group.myresourcegroup.name
+  sku                           = "trial"
 }
 
-# Enables the "Allow Access to Azure services" box as described in the API docs
-# https://docs.microsoft.com/en-us/rest/api/sql/firewallrules/createorupdate
-resource "azurerm_sql_firewall_rule" "example" {
-  name                = "allow-azure-services"
-  resource_group_name = azurerm_resource_group.example.name
-  server_name         = azurerm_sql_server.example.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+resource "databricks_scim_user" "admin" {
+  user_name    = "admin@example.com"
+  display_name = "Admin user"
+  set_admin    = true
+  default_roles = []
+}
+
+
+resource "databricks_cluster" "shared_autoscaling" {
+  cluster_name            = "${var.prefix}-Autoscaling-Cluster"
+  spark_version           = var.spark_version
+  node_type_id            = var.node_type_id
+  autotermination_minutes = 30
+  autoscale {
+    min_workers = var.min_workers
+    max_workers = var.max_workers
+  }
+  library {
+    pypi {
+        package = "scikit-learn==0.23.2"
+        // repo can also be specified here
+        }
+
+    }
+  library {
+    pypi {
+        package = "pystan==2.19.1.1"
+        // repo can also be specified here
+        }
+
+    }
+  library {
+    pypi {
+        package = "fbprophet==0.6"
+        }
+  }
+  custom_tags = {
+    Department = "Engineering"
+  }
+}
+
+resource "databricks_notebook" "notebook" {
+  content = base64encode("print('Welcome to your Python notebook')")
+  path = var.notebook_path
+  overwrite = false
+  mkdirs = true
+  language = "PYTHON"
+  format = "SOURCE"
+  
 }
