@@ -102,9 +102,9 @@ resource "databricks_token" "pat" {
 
 resource "azurerm_key_vault" "example" {
   name                       = "examplekeyvault"
-  location                   = azurerm_resource_group.example.location
-  resource_group_name        = azurerm_resource_group.example.name
-  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  location                   = azurerm_resource_group.myresourcegroup.location
+  resource_group_name        = "resource1006v01myresourcegroup"
+  tenant_id                  = "bbb16e7e-8a43-4199-b76c-9741348a7707"
   sku_name                   = "premium"
   soft_delete_retention_days = 7
 
