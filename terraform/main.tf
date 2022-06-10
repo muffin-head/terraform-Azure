@@ -101,7 +101,7 @@ resource "databricks_token" "pat" {
 }
 
 resource "azurerm_key_vault" "example" {
-  name                       = "examplekeyvault"
+  name                       = "keyvaultv011008"
   location                   = azurerm_resource_group.myresourcegroup.location
   resource_group_name        = "resource1006v01myresourcegroup"
   tenant_id                  = "bbb16e7e-8a43-4199-b76c-9741348a7707"
