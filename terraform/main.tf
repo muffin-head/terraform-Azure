@@ -83,3 +83,52 @@ resource "databricks_notebook" "notebook" {
   format = "SOURCE"
   
 }
+
+provider "databricks" {
+  alias = "created_workspace"
+
+  host = azurerm_databricks_workspace.myworkspace.workspace_url
+}
+resource "databricks_token" "pat" {
+  provider = databricks.created_workspace
+  comment  = "Terraform Provisioning"
+  lifetime_seconds = 8640000
+}
+  
+  resource "azurerm_resource_group" "example" {
+  name     = "example-resources12369"
+  location = "West Europe"
+}
+
+resource "azurerm_key_vault" "example" {
+  name                       = "examplekeyvault"
+  location                   = azurerm_resource_group.example.location
+  resource_group_name        = azurerm_resource_group.example.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "premium"
+  soft_delete_retention_days = 7
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
+
+    key_permissions = [
+      "Create",
+      "Get",
+    ]
+
+    secret_permissions = [
+      "Set",
+      "Get",
+      "Delete",
+      "Purge",
+      "Recover"
+    ]
+  }
+}
+
+resource "azurerm_key_vault_secret" "example" {
+  name         = "secret-sauce"
+  value        = databricks_token.pat.token_value
+  key_vault_id = azurerm_key_vault.example.id
+}
