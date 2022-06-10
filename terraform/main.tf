@@ -109,8 +109,8 @@ resource "azurerm_key_vault" "example" {
   soft_delete_retention_days = 7
 
   access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
+    tenant_id = "bbb16e7e-8a43-4199-b76c-9741348a7707"
+    object_id = "01054437-d016-4bf3-b3bf-6c87299cdba1"
 
     key_permissions = [
       "Create",
