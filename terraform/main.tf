@@ -81,6 +81,9 @@ resource "databricks_notebook" "notebook" {
   mkdirs = true
   language = "PYTHON"
   format = "SOURCE"
+  notebook_task {
+        notebook_path = var.notebook_path
+    }
 }
 
 resource "databricks_job" "myjob" {
