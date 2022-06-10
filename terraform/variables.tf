@@ -15,12 +15,12 @@ variable "spark_version" {
 
 variable "node_type_id" {
   description = "Type of worker nodes for databricks clusters"
-  default     = "Standard_DS3_v2"
+  default     = "F4"
 }
 
 variable "notebook_path" {
   description = "Path to a notebook"
-  default     = "/1.2 Databricks Platform.ipynb"
+  default     = "./1.2 Databricks Platform.ipynb"
 }
 
 variable "min_workers" {
